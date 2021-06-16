@@ -1,0 +1,195 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+.wrapper {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: sans-serif;
+  background-color: #f9fbfd;
+}
+
+.wrapper {
+  padding-top: 30px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  padding-top: 0px;
+  color: hsl(206, 17%, 28%);
+}
+
+.card {
+  background-color: hsl(0, 0%, 100%);
+  border-radius: 5px;
+  border-width: 1px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px 0px;
+  color: hsl(206, 17%, 28%);
+  font-size: 18px;
+  margin: 0 auto;
+  max-width: 800px;
+  padding: 30px 40px;
+}
+
+.card-header::after {
+  content: " ";
+  display: block;
+  width: 100%;
+  background: #e7e9eb;
+  height: 2px;
+}
+
+.card-body {
+  min-height: 40px;
+}
+
+.card-footer {
+  text-align: center;
+}
+
+.card-footer::before {
+  content: " ";
+  display: block;
+  width: 100%;
+  background: #e7e9eb;
+  height: 2px;
+}
+
+.card-footer::after {
+  content: " ";
+  display: block;
+  clear: both;
+}
+
+.btn {
+  border: none;
+  background-color: hsl(360, 91%, 36%);
+  border-radius: 25px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 6px 0px rgba(0, 0, 0, 0.2) 0px 1px 1px
+    0px;
+  color: hsl(0, 0%, 100%);
+  display: inline-block;
+  font-size: 22px;
+  line-height: 22px;
+  margin: 16px 16px 16px 20px;
+  padding: 14px 34px;
+  text-align: center;
+  cursor: pointer;
+}
+
+button[disabled] {
+  cursor: default;
+  background: #c0c7cf;
+}
+
+.float-right {
+  float: right;
+}
+
+#password,#password-criteria{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  display: block;
+  width: 100%;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 85px;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 2px dashed #c0c7cf;
+  border-radius: 6px;
+  resize: none;
+  overflow: hidden;
+}
+
+@media (max-width: 690px) {
+  .btn {
+    font-size: 1rem;
+    margin: 16px 0px 0px 0px;
+    padding: 10px 15px;
+  }
+
+  #password {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .btn {
+    font-size: 0.8rem;
+  }
+}
+
+
+
+/* 
+
+body {
+    background-color: #eff5f8;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+  }
+  
+  button {
+      padding: 10px;
+      margin: 24px;
+      cursor: pointer;
+      font-size: 24px;
+      background-color: #247BA0;
+      color: white;
+    }
+    
+  input {
+    background-color: #f7f7f7;
+    }
+  
+  .wrapper {
+    padding-top: 20px;
+  }
+  
+  .container {
+      display: block;
+      margin: 40px auto;
+      text-align: center;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      transition: 0.3s;
+      width: 60vw;
+      background-color: #f0ead6;
+    }
+  
+  .card-contents {
+      padding: 5px 5px 30px 5px;
+    }
+  
+  #name,
+  #email,
+  #submit {
+      width: 80%;
+      padding: 12px 20px;
+      margin: 8px 20px;
+      box-sizing: border-box;
+      font-size: 18px;
+    }
+  
+  #response {
+        padding-bottom: 30px;
+    }
+   */
+  
