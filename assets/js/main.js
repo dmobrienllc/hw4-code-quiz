@@ -1,12 +1,9 @@
-// var wordBlank = document.querySelector(".word-blanks");
-// let answerGuess = document.querySelector(".answer-guess");
-
 let correctCnt = document.querySelector(".correct-count");
 let incorrectCnt = document.querySelector(".incorrect-count");
 let timerCnt = document.querySelector(".timer-count");
 let startButton = document.querySelector(".start-button");
-var timer;
-var timerCount;
+let timer;
+let timerCount;
 
 let questionsCounter = 0;
 let correctCounter = 0;
@@ -53,7 +50,7 @@ function startGame() {
 
   startTimer()
 
-  //render first question, do this more elegantly
+  //render first question, do this more elegantly later
   renderQuestion(0);
 }
 
@@ -72,7 +69,6 @@ function startTimer() {
 
 //get next requested question to the page
 function renderQuestion(questionIndex) {
-  alert("Render Question, looking for index: " + questionIndex);
   let questTmp = questionsArray[questionIndex];
 
   let pQuestionEl = document.querySelector("#question-text");
@@ -80,7 +76,7 @@ function renderQuestion(questionIndex) {
 
   //select ul parent and clear children for next list
   let ulEl = document.querySelector("#answer-list");
-
+  //I'm sure there's a better way to do this
   while( ulEl.firstChild ){
     ulEl.removeChild( ulEl.firstChild );
   }
@@ -102,16 +98,12 @@ function renderQuestion(questionIndex) {
 }
 
 //process the answer function
-//check to see if correct and write result
-//advance selection index
-//return next question or
-//route to 'done'
 function processAnswer(questTmp,answerIndex){
   alert("QuestionIndex: " + questTmp.index + "You answered: " + answerIndex)
 
   console.log("ProcessAnswerTmpQst " + questTmp.correctAnswerIndex + " | Selected:" + answerIndex);
 
-  //Return message should be human friendly
+  //Return message should be human friendly. write this to p tag
   if(SetCorrectIncorrect(questTmp.correctAnswerIndex,answerIndex)){
     alert(questTmp.correctAnswerIndex + "| " + answerIndex 
       + " " + questTmp.questionText + " answered correctly!")
@@ -121,9 +113,9 @@ function processAnswer(questTmp,answerIndex){
       + questTmp.questionText + " answered incorrectly!")
   }
 
-  //get next question or end if no  more questions
   let questionIndex = questTmp.index++;
 
+  //get next question or end if no  more questions
   if(questionIndex > (questionsArray.length - 1)){
     displayResults();
   }
@@ -163,12 +155,13 @@ function displayResults()
   if(correctCnt > incorrectCnt){
     pQuestionEl.innerText = "There's no question, you've defeated the quiz!!"
   }else if(correctCnt < incorrectCnt){
-    "There's no question, you've been defeated by the quiz!!"
+    pQuestionEl.innerText = "There's no question, you've been defeated by the quiz!!"
   }else{
     pQuestionEl.innerText = "There's no question, you've tied the quiz!!!"
   }
   
-  //are there extension methods in js? cleaner to do it
+  //are there extension methods in js? cleaner to do it,
+  //at least make this a function and pass ul to it.
   let ulEl = document.querySelector("#answer-list");
 
   while( ulEl.firstChild ){
@@ -275,39 +268,3 @@ function resetGame() {
 }
 // Attaches event listener to button
 resetButton.addEventListener("click", resetGame);
-
-
-// // Tests if guessed letter is in word and renders it to the screen.
-// function checkLetters(letter) {
-//   var letterInWord = false;
-//   for (var i = 0; i < numBlanks; i++) {
-//     if (chosenWord[i] === letter) {
-//       letterInWord = true;
-//     }
-//   }
-//   if (letterInWord) {
-//     for (var j = 0; j < numBlanks; j++) {
-//       if (chosenWord[j] === letter) {
-//         blanksLetters[j] = letter;
-//       }
-//     }
-//     wordBlank.textContent = blanksLetters.join(" ");
-//   }
-// }
-
-// // Attach event listener to document to listen for key event
-// document.addEventListener("keydown", function(event) {
-//   // If the count is zero, exit function
-//   if (timerCount === 0) {
-//     return;
-//   }
-//   // Convert all keys to lower case
-//   var key = event.key.toLowerCase();
-//   var alphabetNumericCharacters = "abcdefghijklmnopqrstuvwxyz0123456789 ".split("");
-//   // Test if key pushed is letter
-//   if (alphabetNumericCharacters.includes(key)) {
-  //     var letterGuessed = event.key;
-  //     checkLetters(letterGuessed)
-  //     checkWin();
-  //   }
-  // });
