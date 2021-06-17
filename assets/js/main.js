@@ -151,7 +151,7 @@ function SetCorrectIncorrect(correctIndex,chosenIndex){
 function displayResults()
 {
   stopTimer = true;
-  
+
   let pQuestionEl = document.querySelector("#question-text");
 
   let correctCnt = localStorage.getItem("correctAnswers");
@@ -222,8 +222,8 @@ function displayResults()
 
     questionsArray[0] = question;
 
-    let testQuestion2 = "Methods/Objects in the WEB API are __________?";
-    let answers2 = ["setInterval","localStorage","stopTimer","all of the above"];
+    let testQuestion2 = "Which built-in method calls a function for each element in the array __________?";
+    let answers2 = ["while()","loop()","forEach()","none of the above"];
     let question2 = new Question(2,testQuestion2,2);
 
     answers2.forEach(function(answer,index){
@@ -236,6 +236,21 @@ function displayResults()
       question2.answers[index] = tmp;
     });
     questionsArray[1] = question2;
+
+    let testQuestion3 = "Which of the following function of String object combines the text of two strings and returns a new string? __________?";
+    let answers3 = ["add()","concat()","merge()","append()"];
+    let question3 = new Question(3,testQuestion3,1);
+
+    answers3.forEach(function(answer,index){
+      if(index === 1){
+        tmp = new Answer(answer,index,question3.index,true);
+      }
+      else{
+        tmp = new Answer(answer,index,question3.index,false);
+      }
+      question3.answers[index] = tmp;
+    });
+    questionsArray[2] = question3;
   }
 
 // Attach event listener to start button to call startGame function on click
