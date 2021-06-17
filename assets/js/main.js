@@ -1,19 +1,17 @@
-var wordBlank = document.querySelector(".word-blanks");
-let answerGuess = document.querySelector(".answer-guess");
+// var wordBlank = document.querySelector(".word-blanks");
+// let answerGuess = document.querySelector(".answer-guess");
 
 let correctCnt = document.querySelector(".correct-count");
 let incorrectCnt = document.querySelector(".incorrect-count");
 let timerCnt = document.querySelector(".timer-count");
 let startButton = document.querySelector(".start-button");
-
-var winCounter = 0;
-var loseCounter = 0;
 var timer;
 var timerCount;
 
 let questionsCounter = 0;
 let correctCounter = 0;
 let incorrectCounter = 0;
+let stopTimer = false
 
 class Question {
   constructor(index, questionText,correctAnswerIndex) {
@@ -42,107 +40,61 @@ class Answer{
 
 let questionsArray = [];
 
-// The init function is called when the page loads 
 function init() {
-  //getCorrectAnswers();
-  //getIncorrectAnswers();
+  localStorage.setItem("correctAnswers",0);
+  localStorage.setItem("incorrectAnswers",0);
   loadQuestions();
-
-  questionsArray.forEach((element, index) => {
-    console.log(`Current index: ${index}`);
-    console.log(element);
-});
-  console.log(questionsArray);
 }
 
-// The startGame function is called when the start button is clicked
+//start button onclick
 function startGame() {
   timerCount = 60;
   startButton.disabled = true;
 
-  //renderBlanks()
-  //you won't call render question here, you'd just go to a method
-  //which loops through the 
   startTimer()
+
+  //render first question, do this more elegantly
   renderQuestion(0);
 }
 
-function displayResults()
-{
-  
-}
-
 function startTimer() {
-  // Sets timer
+
   timer = setInterval(function() {
     timerCount--;
     timerCnt.textContent = timerCount;
 
-    if (timerCount === 0) {
+    //reset button/processAnswer methods can both set stopTimer to true
+    if (timerCount === 0 || stopTimer) {
       clearInterval(timer); 
-      //display resultsloseGame();
     }
   }, 1000);
 }
 
-  //This function to be refactored to call a 'create' constructor to
-  //avoid duplication
-  function loadQuestions(){
-    let testQuestion = "Arrays in javascript can be used to hold __________?";
-    let answers = ["boolean","string","object","all of the above"];
-    let question = new Question(1,testQuestion);
-    let tmp;
-
-    answers.forEach(function(answer,index){
-      if(index === 2){
-        tmp = new Answer(answer,index,question.index,true);
-      }
-      else{
-        tmp = new Answer(answer,index,question.index,false);
-      }
-      question.answers[index] = tmp;
-    });
-
-    questionsArray[0] = question;
-
-    let testQuestion2 = "Methods/Objects in the WEB API are __________?";
-    let answers2 = ["setInterval","localStorage","stopTimer","all of the above"];
-    let question2 = new Question(2,testQuestion);
-
-    answers2.forEach(function(answer,index){
-      if(index === 2){
-        tmp = new Answer(answer,index,question2.index,true);
-      }
-      else{
-        tmp = new Answer(answer,index,question2.index,false);
-      }
-      question2.answers[index] = tmp;
-    });
-    questionsArray[1] = question2;
-  }
-
 //get next requested question to the page
 function renderQuestion(questionIndex) {
+  alert("Render Question, looking for index: " + questionIndex);
   let questTmp = questionsArray[questionIndex];
 
   let pQuestionEl = document.querySelector("#question-text");
   pQuestionEl.innerHTML = questTmp.questionText;
 
-  //select ul parent
+  //select ul parent and clear children for next list
   let ulEl = document.querySelector("#answer-list");
+
+  while( ulEl.firstChild ){
+    ulEl.removeChild( ulEl.firstChild );
+  }
 
   questTmp.answers.forEach(function(answer,index){
     let liEl = document.createElement("li");
     let buttonEl = document.createElement("button")
-      //prepend with question id?
       buttonEl.setAttribute("class","answer-button");
       buttonEl.setAttribute("id",index);
       buttonEl.setAttribute("value",answer.answerText);
       buttonEl.innerText = answer.answerText;
 
       buttonEl.addEventListener("click", function() {
-            alert("Value: " + buttonEl.value)
-            processAnswer(questTmp.innerText,index);
+            processAnswer(questTmp,index);
         });
       liEl.appendChild(buttonEl);
       ulEl.appendChild(liEl);
@@ -154,34 +106,73 @@ function renderQuestion(questionIndex) {
 //advance selection index
 //return next question or
 //route to 'done'
-function processAnswer(questionIndex,answerIndex){
-  alert("You answered: " + answerIndex)
+function processAnswer(questTmp,answerIndex){
+  alert("QuestionIndex: " + questTmp.index + "You answered: " + answerIndex)
 
-  //not checking for null here as if we have an answer, we 
-  //had a question. Wouldn't be hard to make it  more robust.
-  let tmpQst = questionsArray[questionIndex];
+  console.log("ProcessAnswerTmpQst " + questTmp.correctAnswerIndex + " | Selected:" + answerIndex);
 
   //Return message should be human friendly
-  if(SetCorrectIncorrect(mpQst.correctAnswerIndex,answerIndex)){
-    alert(tmpQst.questionText + " answered correctly!")
+  if(SetCorrectIncorrect(questTmp.correctAnswerIndex,answerIndex)){
+    alert(questTmp.correctAnswerIndex + "| " + answerIndex 
+      + " " + questTmp.questionText + " answered correctly!")
   }
   else{
-    alert(tmpQst.questionText + " answered incorrectly!")
+    alert(questTmp.correctAnswerIndex + "| " + answerIndex + " " 
+      + questTmp.questionText + " answered incorrectly!")
   }
 
   //get next question or end if no  more questions
+  let questionIndex = questTmp.index++;
+
+  if(questionIndex > (questionsArray.length - 1)){
+    displayResults();
+  }
+  else{
+    renderQuestion(questionIndex);
+  }
 }
 
 function SetCorrectIncorrect(correctIndex,chosenIndex){
   if(correctIndex === chosenIndex){
     correctCounter++;
+    correctCnt.innerText = correctCounter;
     localStorage.setItem("correctAnswers",correctCounter);
     return true;
   }
   else{
     incorrectCounter++;
-    localStorage.setItem("incorrectCount",incorrectCounter)
+    alert("Set incorrect " + incorrectCounter);
+    localStorage.setItem("incorrectAnswers",incorrectCounter)
+    incorrectCnt.innerText = incorrectCounter;
     return false;
+  }
+}
+//put together meaningful results based on correct/incorrect
+function displayResults()
+{
+  stopTimer = true;
+  
+  let pQuestionEl = document.querySelector("#question-text");
+
+  let correctCnt = localStorage.getItem("correctAnswers");
+  let incorrectCnt = localStorage.getItem("incorrectAnswers");
+
+  alert("Display: No More Questions! Correct: " +
+      correctCnt + " Incorrect: " + incorrectCnt);
+
+  if(correctCnt > incorrectCnt){
+    pQuestionEl.innerText = "There's no question, you've defeated the quiz!!"
+  }else if(correctCnt < incorrectCnt){
+    "There's no question, you've been defeated by the quiz!!"
+  }else{
+    pQuestionEl.innerText = "There's no question, you've tied the quiz!!!"
+  }
+  
+  //are there extension methods in js? cleaner to do it
+  let ulEl = document.querySelector("#answer-list");
+
+  while( ulEl.firstChild ){
+    ulEl.removeChild( ulEl.firstChild );
   }
 }
 
@@ -211,6 +202,42 @@ function SetCorrectIncorrect(correctIndex,chosenIndex){
       incorrectCnt.textContent = incorrectCounter;
   }
 
+  //This function to be refactored to call a 'create' constructor to
+  //avoid duplication
+  function loadQuestions(){
+    let testQuestion = "Arrays in javascript can be used to hold __________?";
+    let answers = ["boolean","string","object","all of the above"];
+    let question = new Question(1,testQuestion,3);
+    let tmp;
+
+    answers.forEach(function(answer,index){
+      if(index === 3){
+        tmp = new Answer(answer,index,question.index,true);
+      }
+      else{
+        tmp = new Answer(answer,index,question.index,false);
+      }
+      question.answers[index] = tmp;
+    });
+
+    questionsArray[0] = question;
+
+    let testQuestion2 = "Methods/Objects in the WEB API are __________?";
+    let answers2 = ["setInterval","localStorage","stopTimer","all of the above"];
+    let question2 = new Question(2,testQuestion2,2);
+
+    answers2.forEach(function(answer,index){
+      if(index === 2){
+        tmp = new Answer(answer,index,question2.index,true);
+      }
+      else{
+        tmp = new Answer(answer,index,question2.index,false);
+      }
+      question2.answers[index] = tmp;
+    });
+    questionsArray[1] = question2;
+  }
+
 // Attach event listener to start button to call startGame function on click
 startButton.addEventListener("click", startGame);
 
@@ -221,17 +248,13 @@ init();
 var resetButton = document.querySelector(".reset-button");
 
 function resetGame() {
-  // Resets win and loss counts
-  winCounter = 0;
-  loseCounter = 0;
-  // Renders win and loss counts and sets them into client storage
-  setWins()
-  setLosses()
 
-   // Resets win and loss counts
    correctCounter = 0;
    incorrectCounter = 0;
-   // Renders win and loss counts and sets them into client storage
+   // Renders correct/incorrect counts and sets them into client storage
+   //in form of a game object
+   //setGameMethod wojuld be enough
+   stopTimer = true;
    setCorrect()
    setIncorrect()
 }
