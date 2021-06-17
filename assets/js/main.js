@@ -1,298 +1,275 @@
-// Assignment Code
-const startBtn = document.querySelector("#start-quiz");
-startBtn.addEventListener("click", initTime);
+var wordBlank = document.querySelector(".word-blanks");
+let answerGuess = document.querySelector(".answer-guess");
 
-const timeEl = document.querySelector("#time");
-const mainEl = document.querySelector("#result");
+let correctCnt = document.querySelector(".correct-count");
+let incorrectCnt = document.querySelector(".incorrect-count");
+let timerCnt = document.querySelector(".timer-count");
+let startButton = document.querySelector(".start-button");
 
-let stats = {
-    numCorrect: 0,
-    numWrong:0
+var winCounter = 0;
+var loseCounter = 0;
+var timer;
+var timerCount;
+
+let questionsCounter = 0;
+let correctCounter = 0;
+let incorrectCounter = 0;
+
+class Question {
+  constructor(index, questionText,correctAnswerIndex) {
+    this.index = index;
+    this.questionText = questionText;
+    this.correctAnswerIndex = correctAnswerIndex;
+    this.answers = [];
+    this.answeredCorrectly = function(answerIndex){
+      var answer = this.answers[answerIndex];
+      return answer.isCorrect;
+    };
+  }
 }
 
-function initTime() {
-  var timerInterval = setInterval(function() {
-    let secondsLeft = 60;
-    let gameStarted = false;
-    timeEl.textContent = "Timer: " + secondsLeft;
-    secondsLeft--;
+class Answer{
+  constructor(answerText,index,parentIndex,isCorrect) {
+    this.answerText = answerText;
+    this.parentIndex = parentIndex;
+    this.index = index;
+    this.isCorrect = isCorrect;
+    this.checkAnswer = function(){
+      return this.isCorrect;
+    };
+  }
+}
 
-    //start our game; do I need to do a callback to make this async
-    if(!gameStarted && secondsLeft === 60)
-    {
-        gameStarted = true;
-        startGame();
-    }
+let questionsArray = [];
 
-    if(secondsLeft === 0 && gameStarted) {
-      clearInterval(timerInterval);
-      sendMessage();
+// The init function is called when the page loads 
+function init() {
+  //getCorrectAnswers();
+  //getIncorrectAnswers();
+  loadQuestions();
+
+  questionsArray.forEach((element, index) => {
+    console.log(`Current index: ${index}`);
+    console.log(element);
+});
+  console.log(questionsArray);
+}
+
+// The startGame function is called when the start button is clicked
+function startGame() {
+  timerCount = 60;
+  startButton.disabled = true;
+
+  //renderBlanks()
+  //you won't call render question here, you'd just go to a method
+  //which loops through the 
+  startTimer()
+  renderQuestion(0);
+}
+
+function displayResults()
+{
+  
+}
+
+function startTimer() {
+  // Sets timer
+  timer = setInterval(function() {
+    timerCount--;
+    timerCnt.textContent = timerCount;
+
+    if (timerCount === 0) {
+      clearInterval(timer); 
+      //display resultsloseGame();
     }
   }, 1000);
 }
 
-function startGame(){
-    //fill array of question objects
-    //present one by one to user and trap result from call
-    //to start, just populate a collection of "li" elements
-    //with buttons for the answers, so just a test array now
+  //This function to be refactored to call a 'create' constructor to
+  //avoid duplication
+  function loadQuestions(){
     let testQuestion = "Arrays in javascript can be used to hold __________?";
     let answers = ["boolean","string","object","all of the above"];
+    let question = new Question(1,testQuestion);
+    let tmp;
 
-    //select ul parent
-    var ulEl = document.querySelector("#answer-list");
-    
     answers.forEach(function(answer,index){
-        var liEl = document.createElement("li");
-        var buttonEl = document.createElement("button")
-        //prepend with question id?
-        buttonEl.setAttribute("id","1:" + index)
-        buttonEl.setAttribute("value",answer)
-
-        buttonEl.addEventListener("click", function() {
-            // if (count < 24) {
-            //   count++;
-            //   counter.textContent = count;
-            //   localStorage.setItem("count", count);
-            // }
-            alert("Value: " + buttonEl.value)
-          });
-        liEl.appendChild(buttonEl);
-        ulEl.appendChild(liEl);
+      if(index === 2){
+        tmp = new Answer(answer,index,question.index,true);
+      }
+      else{
+        tmp = new Answer(answer,index,question.index,false);
+      }
+      question.answers[index] = tmp;
     });
 
+    questionsArray[0] = question;
+
+    let testQuestion2 = "Methods/Objects in the WEB API are __________?";
+    let answers2 = ["setInterval","localStorage","stopTimer","all of the above"];
+    let question2 = new Question(2,testQuestion);
+
+    answers2.forEach(function(answer,index){
+      if(index === 2){
+        tmp = new Answer(answer,index,question2.index,true);
+      }
+      else{
+        tmp = new Answer(answer,index,question2.index,false);
+      }
+      question2.answers[index] = tmp;
+    });
+    questionsArray[1] = question2;
+  }
+
+//get next requested question to the page
+function renderQuestion(questionIndex) {
+  let questTmp = questionsArray[questionIndex];
+
+  let pQuestionEl = document.querySelector("#question-text");
+  pQuestionEl.innerHTML = questTmp.questionText;
+
+  //select ul parent
+  let ulEl = document.querySelector("#answer-list");
+
+  questTmp.answers.forEach(function(answer,index){
+    let liEl = document.createElement("li");
+    let buttonEl = document.createElement("button")
+      //prepend with question id?
+      buttonEl.setAttribute("class","answer-button");
+      buttonEl.setAttribute("id",index);
+      buttonEl.setAttribute("value",answer.answerText);
+      buttonEl.innerText = answer.answerText;
+
+      buttonEl.addEventListener("click", function() {
+            alert("Value: " + buttonEl.value)
+            processAnswer(questTmp.innerText,index);
+        });
+      liEl.appendChild(buttonEl);
+      ulEl.appendChild(liEl);
+  });
 }
 
-// Function to create and append colorsplosion image
-function sendMessage() {
-  timeEl.textContent = "Time's UP!!";
- 
-    var pEl = document.createElement("p");
-    pEl.innerHTML = "The results go here!"
-    mainEl.appendChild(pEl);
+//process the answer function
+//check to see if correct and write result
+//advance selection index
+//return next question or
+//route to 'done'
+function processAnswer(questionIndex,answerIndex){
+  alert("You answered: " + answerIndex)
+
+  //not checking for null here as if we have an answer, we 
+  //had a question. Wouldn't be hard to make it  more robust.
+  let tmpQst = questionsArray[questionIndex];
+
+  //Return message should be human friendly
+  if(SetCorrectIncorrect(mpQst.correctAnswerIndex,answerIndex)){
+    alert(tmpQst.questionText + " answered correctly!")
+  }
+  else{
+    alert(tmpQst.questionText + " answered incorrectly!")
+  }
+
+  //get next question or end if no  more questions
 }
 
-// var student = document.getElementById("student-names");
-// var grade = document.getElementById("grades");
-// var comment = document.getElementById("msg");
-// var saveButton = document.getElementById("save");
-// var savedName = document.getElementById("saved-name");
+function SetCorrectIncorrect(correctIndex,chosenIndex){
+  if(correctIndex === chosenIndex){
+    correctCounter++;
+    localStorage.setItem("correctAnswers",correctCounter);
+    return true;
+  }
+  else{
+    incorrectCounter++;
+    localStorage.setItem("incorrectCount",incorrectCounter)
+    return false;
+  }
+}
 
-// saveButton.addEventListener("click", function(event) {
-// event.preventDefault();
+  function getCorrectAnswers(){
+    // Get stored value from client storage, if it exists
+    var storedCorrect = localStorage.getItem("correctCount");
+    // If stored value doesn't exist, set counter to 0
+    if (storedCorrect === null) {
+      correctCounter = 0;
+    } else {
+      // If a value is retrieved from client storage set the winCounter to that value
+      correctCounter = storedCorrect;
+    }
+      correctCnt.textContent = correctCounter;
+    }
 
-// var studentGrade = {
-//   student: student.value,
-//   grade: grade.value,
-//   comment: comment.value.trim()
-// };
+  function getIncorrectAnswers(){
+    // Get stored value from client storage, if it exists
+    var storedIncorrect = localStorage.getItem("incorrectCount");
+    // If stored value doesn't exist, set counter to 0
+    if (storedIncorrect === null) {
+      incorrectCounter = 0;
+    } else {
+      // If a value is retrieved from client storage set the winCounter to that value
+      incorrectCounter = storedIncorrect;
+    }
+      incorrectCnt.textContent = incorrectCounter;
+  }
 
-// localStorage.setItem("studentGrade", JSON.stringify(studentGrade));
-// renderMessage();
+// Attach event listener to start button to call startGame function on click
+startButton.addEventListener("click", startGame);
 
-// });
+// Calls init() so that it fires when page opened
+init();
 
-// function renderMessage() {
-//   var lastGrade = JSON.parse(localStorage.getItem("studentGrade"));
-//   if (lastGrade !== null) {
-//     document.querySelector(".message").textContent = lastGrade.student + 
-//     " received a/an " + lastGrade.grade
-//   }
-// }
+// Bonus: Add reset button
+var resetButton = document.querySelector(".reset-button");
+
+function resetGame() {
+  // Resets win and loss counts
+  winCounter = 0;
+  loseCounter = 0;
+  // Renders win and loss counts and sets them into client storage
+  setWins()
+  setLosses()
+
+   // Resets win and loss counts
+   correctCounter = 0;
+   incorrectCounter = 0;
+   // Renders win and loss counts and sets them into client storage
+   setCorrect()
+   setIncorrect()
+}
+// Attaches event listener to button
+resetButton.addEventListener("click", resetGame);
 
 
-// var counter = document.querySelector("#counter");
-// var addButton = document.querySelector("#add");
-// var subtractButton = document.querySelector("#subtract");
-
-// var count = localStorage.getItem("count");
-
-// counter.textContent = count;
-
-// addButton.addEventListener("click", function() {
-//   if (count < 24) {
-//     count++;
-//     counter.textContent = count;
-//     localStorage.setItem("count", count);
-//   }
-// });
-
-// subtractButton.addEventListener("click", function() {
-//   if (count > 0) {
-//     count--;
-//     counter.textContent = count;
-//     localStorage.setItem("count", count);
-//   }
-// });
-
-// var passwordInfoDto={
-//   pwdLength:0,
-//   useLower:false,
-//   useUpper:false,
-//   useNumeric:false,
-//   useSpecialChars:false,
-//   password:"",
-//   writeValues: function(){
-//     return "Password Length: " + this.pwdLength +
-//     "\nUse Lower Case: " + this.useLower +
-//     "\nUse Upper Case: " + this.useUpper +
-//     "\nUse Numeric Chars: " + this.useNumeric +
-//     "\nUse Special Chars: " + this.useSpecialChars 
-//   }
-// }
-
-// function writePassword() {
-//   var passwordInfoDto = generatePassword();
-//   var passwordText = document.querySelector("#password");
-//   var passwordCriteria = document.querySelector("#password-criteria");
-
-//   passwordText.value = passwordInfoDto.password;
-//   passwordCriteria.value = passwordInfoDto.writeValues();
-// }
-
-// //Sets up password criteria and returns object
-// function generatePassword() {
-
-//   passwordInfoDto.password = "";
-//   passwordInfoDto.pwdLength = validateNumberOfChars();
-//   passwordInfoDto.useLower = confirm("Would you like lowercase characters in your password?");
-//   passwordInfoDto.useUpper = confirm("Would you like UPPER CASE characters in your password?");
-//   passwordInfoDto.useSpecialChars = confirm("Would you like special characters in your password");
-//   passwordInfoDto.useNumeric = confirm("Would you like numeric characters in your password");
-
-//   //init pwd char vars
-//   var length = (passwordInfoDto.pwdLength>0)?(passwordInfoDto.pwdLength):(8);
-//   var alphaChars = "abcdefghijklmnopqrstuvwxyz"; //to upper 
-//   var numericChars = '0123456789';
-//   var specialChars = '!@#$%^&*()_+~`|}{[]\:;?><,./-=';
-//   var character = "";
-
-//     while( passwordInfoDto.password.length<length ) {
-//       if(passwordInfoDto.useLower)
-//       {
-//         alphaCharSelector = Math.ceil(alphaChars.length * Math.random()*Math.random());
-//         character += alphaChars.charAt( alphaCharSelector );
-//       }
-
-//       if(passwordInfoDto.useUpper)
-//       {
-//         alphaCharSelector = Math.ceil(alphaChars.length * Math.random()*Math.random());
-//         character += alphaChars.charAt( alphaCharSelector ).toUpperCase();
-//       }
-        
-//       if(passwordInfoDto.useNumeric)
-//       {
-//         numCharSelector = Math.ceil(numericChars.length * Math.random()*Math.random());
-//         character += numericChars.charAt( numCharSelector );
-//       }
-        
-//       if(passwordInfoDto.useSpecialChars)
-//       {
-//         specCharSelector = Math.ceil(specialChars.length * Math.random()*Math.random());
-//         character += specialChars.charAt( specCharSelector );
-//       }
-      
-//       passwordInfoDto.password = character;
-//     }
-//     passwordInfoDto.password=passwordInfoDto.password.split('').sort(function(){return 0.5-Math.random()}).join('');
-//     passwordInfoDto.password.substr(0,passwordInfoDto.pwdLength);
-//     return passwordInfoDto;
-// }
-
-// function validateNumberOfChars(){
-//   let input = 0;
-//   while (input = prompt("Please enter desired password length, between 8 and 128 characters!",8)) {
-//     if (isNaN(input) || 
-//           (input < 8 || input > 128)) {
-//       alert("Input must be a number between 8 and 128!");
-//     } 
-//     else {
-//       return parseInt(input);
+// // Tests if guessed letter is in word and renders it to the screen.
+// function checkLetters(letter) {
+//   var letterInWord = false;
+//   for (var i = 0; i < numBlanks; i++) {
+//     if (chosenWord[i] === letter) {
+//       letterInWord = true;
 //     }
 //   }
-//   alert("Your password will default to 8 characters!");
-//   return 8;
-// }
-
-
-
-//Temp code save
-// //Page elements
-// var submitEl = document.querySelector("#submit");
-// var nameInput = document.querySelector("#name");
-// var emailInput = document.querySelector("#email");
-// var submissionResponseEl = document.querySelector("#response");
-// var timeEl = document.querySelector(".time");
-// var mainEl = document.querySelector("#main");
-// //var mainEl = document.getElementById("main");
-
-// //What do you need to create to satisfy the requirements?
-// //Oject collection of 'Question' objects
-//     -objQuestion
-
-// class Question {
-//     constructor(questionText, Answer) {
-//         this.name = lName;
-//         this.age = lAge;
-//         this.talk = function () {
-//             msg = "Hi! my name is " + this.name;
-//             msg += " and I’m " + this.age;
-//             alert(msg);
-//         }; // end talk method
+//   if (letterInWord) {
+//     for (var j = 0; j < numBlanks; j++) {
+//       if (chosenWord[j] === letter) {
+//         blanksLetters[j] = letter;
+//       }
 //     }
-// } 
-
-//     function main(){
-//     //build two questions
-//     critterA = new Question("Alpha", 1);
-//     critterB = new Question("Beta", 2);
-//     critterB.name = "Charlie";
-//     critterB.age = 3;
-//     //have 'em talk
-//     critterA.talk();
-//     critterB.talk();
-//     } // end main 
-       
-
-// var secondsLeft = 10;
-
-// function setTime() {
-//   // Sets interval in variable
-//   var timerInterval = setInterval(function() {
-//     secondsLeft--;
-//     timeEl.textContent = secondsLeft + " seconds left till colorsplosion.";
-
-//     if(secondsLeft === 0) {
-//       // Stops execution of action at set interval
-//       clearInterval(timerInterval);
-//       // Calls function to create and append image
-//       sendMessage();
-//     }
-
-//   }, 1000);
+//     wordBlank.textContent = blanksLetters.join(" ");
+//   }
 // }
 
-// // Function to create and append colorsplosion image
-// function sendMessage() {
-//   timeEl.textContent = " ";
-//   var imgEl = document.createElement("img");
-//   imgEl.setAttribute("src", "images/image_1.jpg");
-//   mainEl.appendChild(imgEl);
-
-// }
-
-// setTime();
-
-
-// // Action to be performed on click store in named function
-// function showResponse(event) {
-//   // Prevent default action
-//   event.preventDefault();
-//   console.log(event);
-//   var response = "Thank you for your submission " + nameInput.value + "! We will reach out to you at " + emailInput.value + ".";
-//   submissionResponseEl.textContent = response;
-// }
-  
-// // Add listener to submit element
-// submitEl.addEventListener("click", showResponse);
-
+// // Attach event listener to document to listen for key event
+// document.addEventListener("keydown", function(event) {
+//   // If the count is zero, exit function
+//   if (timerCount === 0) {
+//     return;
+//   }
+//   // Convert all keys to lower case
+//   var key = event.key.toLowerCase();
+//   var alphabetNumericCharacters = "abcdefghijklmnopqrstuvwxyz0123456789 ".split("");
+//   // Test if key pushed is letter
+//   if (alphabetNumericCharacters.includes(key)) {
+  //     var letterGuessed = event.key;
+  //     checkLetters(letterGuessed)
+  //     checkWin();
+  //   }
+  // });

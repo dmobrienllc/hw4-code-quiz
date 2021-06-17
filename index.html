@@ -1,84 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
+    <title>CSS Box Styling</title>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Password Generator</title>
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css" />
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>Welcome to the Great Coding Quiz!!</h1>
-        <div id="time" style="text-align:right;"></h1>
-        <div id="result"></div>
-      </header>
-      <div class="card">
-        <div class="card-header">
-          <h2>Questions and Answers!</h2>
-        </div>
-        <div class="card-body card-body-question">
-            <p id="question-body"></p>
-            <ul id="answer-list"></ul>
-          <!-- <textarea
-            readonly
-            id="password"
-            placeholder="Your Secure Password"
-            aria-label="Generated Password"
-          ></textarea> -->
-        </div>
-        <div class="card-body card-body-result">
-          <textarea
-            readonly
-            id="data-result"
-            placeholder="Your Quiz Results!"
-            aria-label="Your Password Criteria"
-          ></textarea>
-        </div>
-        <div class="card-footer">
-          <button id="start-quiz" class="btn">Start Quiz!!</button>
-        </div>
-      </div>
-    </div>
-    <div class="wrapper">
-        <div class="container">
-          <h1>Coding Time Tracker</h1>
-          <h2><span id="counter">0</span> Hours Spent Coding Today</h2>
-          <button id="add">Increment</button>
-          <button id="subtract">Decrement</button>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Enter a Grade</h2>
-        <form>
-          <ul>
-            <li>
-              <label for="name">Student Name</label>
-              <select id="student-names">
-                <option value="Maya">Maya</option>
-                <option value="Alex">Alex</option>
-                <option value="Sojung">Sojung</option>
-                <option value="Tomas">Tomas</option>
-              </select>
-            </li>
-            <li>
-              <label for="grade">Grade</label>
-              <select id="grades">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="Incomplete">Incomplete</option>
-              </select>
-            </li>
-            <li>
-              <label for="msg">Comment</label>
-              <textarea id="msg" name="comments"></textarea>
-            </li>
+    <header>
+      <div class= "large-font">Javascript Code Quiz!</div>
+      <button class="start-button">Start</button>
+    </header>
+
+    <main>
+      <section>
+        <div class="card word-guess">
+          <div class="large-font word-blanks">Question: <span id="question-text">Question Text Here</span></div>
+          <ul id="answer-list">
           </ul>
-          <button id="save">SAVE</button>
-        </form> 
-        <h3 class="message"></h3>   
-    <script src="./assets/js/main.js"></script>
+        </div>
+      </section>
+
+      <section>
+          <div class = "correct-incorrect-container">
+              <h2>Correct: <span class="correct-count">0</span> | Incorrect: <span class="incorrect-count">0</span> | Time Left: <span class="timer-count">60</span></h2>
+              <button class="reset-button">Reset Score</button>
+          </div>
+      </section> 
+    </main>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>
+
+
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <title>CSS Box Styling</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css" />
+  </head>
+  <body>
+    <header class="welcome-start">
+      <div class= "large-font">Javascript Code Quiz!</div>
+      <button class="start-button">Start</button>
+    </header>
+
+    <main>
+      <section>
+        <div class="card answer-guess">
+          <p class="med-font question-blanks">Question:</p>
+          <p id="question-text"></p>
+          <ul id="answer-list"></ul>
+        </div>
+      </section>
+
+      <section>
+        <div class="card results">
+          <div class = "win-loss-container">
+          <div>
+          <h2>Correct: <span class="win">0 </span> </h2>
+          <h2>Incorrect: <span class="lose">0</span></h2> 
+
+          <h2>Correct: <span class="correct">0 </span> </h2>
+          <h2>Incorrect: <span class="incorrect">0</span></h2>
+        </div>
+          <button class="reset-button">Reset Score</button>
+      </div>
+          <div class= "card timer">
+            <div class = "timer-text">
+            <div class="large-font timer-count">10</div>
+            <h3>seconds remaining</h3>
+          </div>
+        
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="./assets/js/main.js"></script>
+  </body>
+</html> -->
