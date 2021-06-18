@@ -11,6 +11,10 @@ let correctCounter = 0;
 let incorrectCounter = 0;
 let stopTimer = false
 
+let questionsArray = [];
+
+//Not used yet, when done I'll populate thiw when user saves initials, 
+//then stringify it into json and store in local storage
 class Game{
   constructor(index, dateTime,numCorrect,numIncorrect,initials) {
     this.index = index;
@@ -21,6 +25,8 @@ class Game{
   }
 }
 
+//Parent question object
+//method answered correctly not being used atm, maybe factor out
 class Question {
   constructor(index, questionText,correctAnswerIndex) {
     this.index = index;
@@ -34,6 +40,7 @@ class Question {
   }
 }
 
+//child Answer object
 class Answer{
   constructor(answerText,index,parentIndex,isCorrect) {
     this.answerText = answerText;
@@ -46,11 +53,10 @@ class Answer{
   }
 }
 
-let questionsArray = [];
-
 function init() {
   localStorage.setItem("correctAnswers",0);
   localStorage.setItem("incorrectAnswers",0);
+
   loadQuestions();
 }
 
@@ -59,6 +65,13 @@ function startGame() {
   timerCount = 30;
   startButton.disabled = true;
 
+  //questionsArray is zeroed out on Reset onclick, so load again
+  //if user wants to play another game
+  if(questionsArray.length === 0)
+  {
+    loadQuestions();
+  }
+  
   startTimer()
 
   //render first question, do this more elegantly later
@@ -75,7 +88,8 @@ function startTimer() {
     timerCount--;
     timerCnt.textContent = timerCount;
 
-    //processAnswer method set stopTimer to true
+    //processAnswer method sets stopTimer to true
+    //if no more questions left to deliver
     //if no more questions.
     if (timerCount === 0 || stopTimer) {
       clearInterval(timer); 
@@ -83,7 +97,26 @@ function startTimer() {
   }, 1000);
 }
 
+//resetGame
+//zero it all out
+function resetGame() {
+  correctCounter = 0;
+  incorrectCounter = 0;
+  stopTimer = false;
+  timerCnt.innerText = 30;
+  correctCnt.innerText = 0;
+  incorrectCnt.innerText = 0;
+  startButton.disabled = false;
+  questionsArray.length = 0;
+  localStorage.setItem("correctCount","");
+  localStorage.setItem("incorrectCount","");
+}
+
+//renderQuestion
 //get next requested question to the page
+//NOTE: The eventListener being added to the
+//button; if you're not doing this you should,
+//makes your life way easier!!
 function renderQuestion(questionIndex) {
   let questTmp = questionsArray[questionIndex];
 
@@ -114,11 +147,14 @@ function renderQuestion(questionIndex) {
   });
 }
 
-//process the answer function
+//processAnswer
+//sets correct/incorrect values
+//determines whether to serve another question or displayt results
+//REFACTOR: break this out into two methods to sep concerns
 function processAnswer(questTmp,answerTmp){
   console.log("ProcessAnswerTmpQst " + questTmp.correctAnswerIndex + " | Selected:" + answerTmp.index);
 
-  if(SetCorrectIncorrect(answerTmp.isCorrect)){
+  if(setCorrectIncorrect(answerTmp.isCorrect)){
     console.log(questTmp.correctAnswerIndex + "| " + answerTmp.index 
       + " " + questTmp.questionText + " answered correctly!")
       alert("Correct!");
@@ -130,9 +166,10 @@ function processAnswer(questTmp,answerTmp){
   }
 
   let questionIndex = questTmp.index++;
+  console.log("Question index after increment" + questionIndex);
 
   //get next question or end if no  more questions
-  if(questionIndex > (questionsArray.length - 1)){
+  if(questionIndex > (questionsArray.length -1)){
     displayResults();
   }
   else{
@@ -140,7 +177,9 @@ function processAnswer(questTmp,answerTmp){
   }
 }
 
-function SetCorrectIncorrect(isCorrect){
+//setCorrectIncorrect
+//updates appropriate entities based on correction/incorrect answer
+function setCorrectIncorrect(isCorrect){
   if(isCorrect){
     correctCounter++;
     correctCnt.innerText = correctCounter;
@@ -155,13 +194,13 @@ function SetCorrectIncorrect(isCorrect){
   }
 }
 
+//displayResults
 //put together meaningful results based on correct/incorrect
 function displayResults()
 {
   stopTimer = true;
 
   let pQuestionEl = document.querySelector("#question-text");
-
   let correctCnt = localStorage.getItem("correctAnswers");
   let incorrectCnt = localStorage.getItem("incorrectAnswers");
 
@@ -187,8 +226,11 @@ function displayResults()
   }
 }
 
-  //This function to be refactored to call a 'create' constructor to
+  //loadQuestions
+  //REFACTORThis function to be refactored to call a 'create' constructor to
   //avoid duplication
+  //In the real world you'd probably pull all this from the database so
+  //here I'm just hard coding the questions to input.
   function loadQuestions(){
 
     //ensure we do a fresh load
@@ -197,164 +239,55 @@ function displayResults()
       questionsArray.length = 0;
     }
 
+    //NOTE: Hard coding correct answer index to pass to the constructor,
+    //in real world I'd have this information coming back from my data
+    //store so this would be much more elegant
     let testQuestion = "Arrays in javascript can be used to hold __________?";
     let answers = ["boolean","string","object","all of the above"];
-    let question = new Question(1,testQuestion,3);
-    let tmp;
+    addQuestionToCollection(testQuestion,answers,3)
 
-    answers.forEach(function(answer,index){
-      if(index === 3){
-        tmp = new Answer(answer,index,question.index,true);
-      }
-      else{
-        tmp = new Answer(answer,index,question.index,false);
-      }
-      question.answers[index] = tmp;
-    });
+    testQuestion = "Which built-in method calls a function for each element in the array __________?";
+    answers = ["while()","loop()","forEach()","none of the above"];
+    addQuestionToCollection(testQuestion,answers,2)
 
-    questionsArray[0] = question;
+    testQuestion = "Which of the following function of String object combines the text of two strings and returns a new string __________?";
+    answers = ["add()","concat()","merge()","append()"];
+    addQuestionToCollection(testQuestion,answers,1)
 
-    let testQuestion2 = "Which built-in method calls a function for each element in the array __________?";
-    let answers2 = ["while()","loop()","forEach()","none of the above"];
-    let question2 = new Question(2,testQuestion2,2);
-
-    answers2.forEach(function(answer,index){
-      if(index === 2){
-        tmp = new Answer(answer,index,question2.index,true);
-      }
-      else{
-        tmp = new Answer(answer,index,question2.index,false);
-      }
-      question2.answers[index] = tmp;
-    });
-    questionsArray[1] = question2;
-
-    let testQuestion3 = "Which of the following function of String object combines the text of two strings and returns a new string? __________?";
-    let answers3 = ["add()","concat()","merge()","append()"];
-    let question3 = new Question(3,testQuestion3,1);
-
-    answers3.forEach(function(answer,index){
-      if(index === 1){
-        tmp = new Answer(answer,index,question3.index,true);
-      }
-      else{
-        tmp = new Answer(answer,index,question3.index,false);
-      }
-      question3.answers[index] = tmp;
-    });
-    questionsArray[2] = question3;
+    testQuestion = "Which of the following function of String object returns the characters " +
+                    "in a string between two indexes into the string ___________?"
+    answers = ["slice()","split()","subst()","substring()"];   
+    addQuestionToCollection(testQuestion,answers,3)
+  
   }
 
-// Attach event listener to start button to call startGame function on click
+  //addQuestionToCollection
+  //Hydrates Question object and pushes on to the collection array
+  function addQuestionToCollection(questionText,answersArray,correctAnswerIndex){
+
+    let tmpQuest = new Question((questionsArray.length+1),questionText,correctAnswerIndex);
+    let tmpAns;
+
+    alert(tmpQuest.index + tmpQuest.correctAnswerIndex);
+
+    answersArray.forEach(function(answer,index){
+      if(index === correctAnswerIndex){
+        tmpAns = new Answer(answer,index,tmpQuest.index,true);
+      }
+      else{
+        tmpAns = new Answer(answer,index,tmpQuest.index,false);
+      }
+      tmpQuest.answers[index] = tmpAns;
+    });
+
+    questionsArray.push(tmpQuest)
+  }
+
 startButton.addEventListener("click", startGame);
+
+var resetButton = document.querySelector(".reset-button");
+resetButton.addEventListener("click", resetGame);
 
 // Calls init() so that it fires when page opened
 init();
 
-// Bonus: Add reset button
-var resetButton = document.querySelector(".reset-button");
-
-function resetGame() {
-  correctCounter = 0;
-  incorrectCounter = 0;
-  stopTimer = false;
-  timerCnt.innerText = 30;
-  correctCnt.innerText = 0;
-  incorrectCnt.innerText = 0;
-  startButton.disabled = false;
-  localStorage.setItem("correctCount","");
-  localStorage.setItem("incorrectCount","");
-}
-// Attaches event listener to button
-resetButton.addEventListener("click", resetGame);
-
-
-
-// function SetCorrectIncorrect(correctIndex,chosenIndex){
-//   if(correctIndex === chosenIndex){
-//     correctCounter++;
-//     correctCnt.innerText = correctCounter;
-//     localStorage.setItem("correctAnswers",correctCounter);
-//     return true;
-//   }
-//   else{
-//     incorrectCounter++;
-//     alert("Set incorrect " + incorrectCounter);
-//     localStorage.setItem("incorrectAnswers",incorrectCounter)
-//     incorrectCnt.innerText = incorrectCounter;
-//     return false;
-//   }
-// }
-
-// function getCorrectAnswers(){
-//   // Get stored value from client storage, if it exists
-//   var storedCorrect = localStorage.getItem("correctCount");
-//   // If stored value doesn't exist, set counter to 0
-//   if (storedCorrect === null) {
-//     correctCounter = 0;
-//   } else {
-//     // If a value is retrieved from client storage set the winCounter to that value
-//     correctCounter = storedCorrect;
-//   }
-//     correctCnt.textContent = correctCounter;
-//   }
-
-// function getIncorrectAnswers(){
-//   // Get stored value from client storage, if it exists
-//   var storedIncorrect = localStorage.getItem("incorrectCount");
-//   // If stored value doesn't exist, set counter to 0
-//   if (storedIncorrect === null) {
-//     incorrectCounter = 0;
-//   } else {
-//     // If a value is retrieved from client storage set the winCounter to that value
-//     incorrectCounter = storedIncorrect;
-//   }
-//     incorrectCnt.textContent = incorrectCounter;
-// }
-
-// var container = document.querySelector(".container");
-// var para = document.querySelector("#result");
-
-// container.addEventListener("click", function(event) {
-//   var element = event.target;
-//   console.log(element);
-
-//   var state = element.getAttribute("data-state");
-//   var number = element.getAttribute("data-number");
-
-//   "[id='22']"
-//   var selectionAttString = "[data-number='" + number + "']";
-
-//   var divEl = document.querySelector(selectionAttString);
-//   divEl.innerHTML = number;
-  
-//   element.setAttribute("data-state", "visible");
-
-//   para.innerHTML= state + number;
-// });
-
-// function processAnswer(questTmp,answerIndex){
-//   alert("QuestionIndex: " + questTmp.index + "You answered: " + answerIndex)
-
-//   console.log("ProcessAnswerTmpQst " + questTmp.correctAnswerIndex + " | Selected:" + answerIndex);
-
-//   //Return message should be human friendly. write this to p tag
-//   if(SetCorrectIncorrect(questTmp.correctAnswerIndex,answerIndex)){
-//     alert(questTmp.correctAnswerIndex + "| " + answerIndex 
-//       + " " + questTmp.questionText + " answered correctly!")
-//   }
-//   else{
-//     alert(questTmp.correctAnswerIndex + "| " + answerIndex + " " 
-//       + questTmp.questionText + " answered incorrectly!")
-//   }
-
-//   let questionIndex = questTmp.index++;
-
-//   //get next question or end if no  more questions
-//   if(questionIndex > (questionsArray.length - 1)){
-//     displayResults();
-//   }
-//   else{
-//     renderQuestion(questionIndex);
-//   }
-// }
